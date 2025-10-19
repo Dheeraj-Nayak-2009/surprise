@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surprise!</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Honk&family=MonteCarlo&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+html, body {
+    margin: 0; padding: 0; height: 100%;
+    scroll-behavior: smooth;
+    overflow: hidden;
+    background: black;
+    font-family: 'Poppins', sans-serif;
+    color: white;
+  }
+  section {
+    height: 100vh; width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  canvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+
+  #home{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  #diwaliText {
+    position: absolute;
+    color: #FFD700;
+    font-size: 5em;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 1s;
+    font-family: 'Honk', cursive;
+    line-height: 1;
+  }
+  #sparklerImage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: auto; /* Allow interaction */
+    cursor: grab; /* Show grab cursor */
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+  }
+  #sparklerImage:active {
+    cursor: grabbing; /* Show grabbing cursor while dragging */
+  }
+    laxmibomb img {
+        width: 300px;
+    }
+    laxmibomb h3 {
+        position: relative;
+        color: white;
+        /* font-family: 'MonteCarlo', sans-serif; */
+        animation: blink 1s infinite;
+        text-align: center;
+    }
+    laxmibomb {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+</style>
+<style>
+  /* Loader overlay */
+  #loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+  }
+
+  /* Loader animation */
+  .spinner {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #ffcc00;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+  }
+  #explosionContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-color: rgb(0, 0, 0);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: white;
+  }
+  #explosionContent h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+    font-family: 'Honk', cursive;
+  }
+   #explosionContent p {
+        font-size: 1.5em;
+        max-width: 600px;
+        margin-bottom: 40px;
+        font-family: 'MonteCarlo', sans-serif;
+    }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Hide loader when done */
+  #loader.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+<style>
+
+.diya-container {
+  position: relative;
+  width: 180px;
+}
+
+.diya {
+  width: 100%;
+  display: block;
+}
+
+.flame {
+  position: absolute;
+  bottom: 50%; /* adjust based on wick */
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  width: 20px;
+  height: 40px;
+  background: radial-gradient(circle at 50% 50%, #ffd700, #ff4500);
+  border-radius: 50% 50% 50% 50%;
+  opacity: 0;
+  pointer-events: none;
+  filter: blur(4px);
+}
+
+/* Animation triggered after click */
+.flame.lit {
+  animation: flameFlicker 1s infinite;
+  transform: translateX(-50%) scale(1);
+  opacity: 1;
+}
+
+@keyframes flameFlicker {
+  0% {
+    transform: translateX(-50%) scale(1) translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: translateX(-48%) scale(1.05) translateY(-3px) rotate(-2deg);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateX(-52%) scale(0.95) translateY(-6px) rotate(1deg);
+    opacity: 1;
+  }
+  75% {
+    transform: translateX(-49%) scale(1.08) translateY(-4px) rotate(-1deg);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateX(-50%) scale(1) translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+}
+</style>
+<style>
+.btn {
+  width: 30px;
+  height: 50px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: none;
+  outline: 2px solid rgb(105, 127, 255);
+  box-shadow: 0px 0px 10px rgb(105, 127, 255);
+  position: absolute;
+  margin: 0 auto;
+  bottom: 100px;
+  /* scale: 0.6; */
+  z-index: 10;
+}
+
+.scroll {
+  width: 5px;
+  height: 10px;
+  border-radius: 10px;
+  background-color: rgb(105, 127, 255);
+  box-shadow: 0px 0px 10px rgb(105, 127, 255);
+  animation: scroll_4013 2s linear infinite;
+  transform: translateY(40%);
+}
+
+.btn:after {
+  content: 'scroll down';
+  position: absolute;
+  top: 140%;
+  color: whitesmoke;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  width: 200px;
+}
+
+@keyframes scroll_4013 {
+  0% {
+    transform: translateY(40%);
+  }
+
+  50% {
+    transform: translateY(90%);
+  }
+};
+</style>
+</head>
+<body>
+    <div id="loader">
+  <div class="spinner"></div>
+</div>
+<script>
+  // Function to wait for all images to load
+  function waitForImages() {
+    const images = document.images;
+    const total = images.length;
+    let loaded = 0;
+
+    if (total === 0) { // no images
+      hideLoader();
+      return;
+    }
+
+    for (let img of images) {
+      if (img.complete) {
+        loaded++;
+      } else {
+        img.addEventListener('load', () => {
+          loaded++;
+          if (loaded === total) hideLoader();
+        });
+        img.addEventListener('error', () => {
+          loaded++;
+          if (loaded === total) hideLoader();
+        });
+      }
+    }
+
+    if (loaded === total) hideLoader();
+  }
+
+  function hideLoader() {
+    const loader = document.getElementById('loader');
+    loader.classList.add('hidden');
+    // Optional: remove loader from DOM after fade-out
+    setTimeout(() => loader.remove(), 500);
+  }
+
+  // Run when DOM content is ready
+  document.addEventListener('DOMContentLoaded', waitForImages);
+</script>
+<!-- infinite audio after explosion -->
+<audio id="fireworksAudio" loop>
+    <source src="diwali.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+
+<section onclick="scrollToSection(1)">
+    <button style="width:100%; height:100%; background-color: transparent; border: none; color: white;" onclick="this.textContent='CLICK AGAIN';">CLICK HERE</button> 
+</section>
+
+<section id="home">
+    <laxmibomb>
+        <img src="https://www.pikpng.com/pngl/b/58-586558_bomb-png-diwali-crackers-png-picsartallpng-clipart.png" alt="Laxmi Bomb" />
+        <h3>click</h3>
+    </laxmibomb>
+    <div id="explosionContent" style="display: none;">
+        <h1>Today is a day of celebration...</h1>
+        <p>Celebrate the festival of lights with joy and enthusiasm!</p>
+        <div class="diya-container">
+            <img src="diya.png" alt="Diya" class="diya" id="diya">
+            <div class="flame" id="flame"></div>
+            <span>click</span>
+            
+        </div>
+        <button class="btn" style="display: none;" onclick="scrollToSection(2);">
+            <div class="scroll"></div>
+        </button>
+    </div>
+</section>
+<script>
+// ===== LAXMI BOMB EXPLOSION =====
+const laxmibomb = document.querySelector('laxmibomb');
+const homeSection = document.getElementById('home');
+let explosionCanvas, explosionCtx;
+let explosionParticles = [];
+let explosionStarted = false;
+let fullScreenActivated = false;
+
+// Create the explosion canvas
+function createExplosionCanvas() {
+  explosionCanvas = document.createElement('canvas');
+  explosionCanvas.width = window.innerWidth;
+  explosionCanvas.height = window.innerHeight;
+  explosionCanvas.style.position = 'absolute';
+  explosionCanvas.style.top = '0';
+  explosionCanvas.style.left = '0';
+  explosionCanvas.style.zIndex = '1000';
+  explosionCanvas.style.pointerEvents = 'none';
+  document.body.appendChild(explosionCanvas);
+  explosionCtx = explosionCanvas.getContext('2d');
+}
+
+// Create explosion particles
+function createExplosionParticles(x, y) {
+  for (let i = 0; i < 300; i++) { // Epic-grade particles
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 15 + 5; // High-speed particles
+    const size = Math.random() * 5 + 2; // Larger particles
+    const life = Math.random() * 100 + 100; // Longer life
+    const color = `hsl(${Math.random() * 60 + 40}, 100%, ${Math.random() * 50 + 50}%)`; // Bright colors
+    explosionParticles.push({
+      x,
+      y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      size,
+      life,
+      maxLife: life,
+      color,
+    });
+  }
+}
+
+// Animate the explosion
+function animateExplosion() {
+  explosionCtx.clearRect(0, 0, explosionCanvas.width, explosionCanvas.height);
+
+  for (let i = explosionParticles.length - 1; i >= 0; i--) {
+    const p = explosionParticles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.1; // Gravity effect
+    p.life--;
+
+    const alpha = p.life / p.maxLife;
+    explosionCtx.fillStyle = p.color.replace(')', `, ${alpha})`).replace('hsl', 'hsla');
+    explosionCtx.beginPath();
+    explosionCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    explosionCtx.fill();
+
+    if (p.life <= 0) explosionParticles.splice(i, 1);
+  }
+
+  if (explosionParticles.length > 0) {
+    requestAnimationFrame(animateExplosion);
+  }
+}
+
+// Trigger the white screen effect
+function triggerWhiteScreen() {
+  const whiteScreen = document.createElement('div');
+  whiteScreen.style.position = 'absolute';
+  whiteScreen.style.top = '0';
+  whiteScreen.style.left = '0';
+  whiteScreen.style.width = '100%';
+  whiteScreen.style.height = '100%';
+  whiteScreen.style.backgroundColor = 'white';
+  whiteScreen.style.zIndex = '1001';
+  whiteScreen.style.opacity = '0'; // Start transparent
+  whiteScreen.style.transition = 'opacity 0.5s'; // Smooth transition
+  document.body.appendChild(whiteScreen);
+
+  // Start whitening effect
+  setTimeout(() => {
+    whiteScreen.style.opacity = '1'; // Fade to white
+    setTimeout(() => {
+      whiteScreen.style.transition = 'opacity 2s';
+      whiteScreen.style.opacity = '0'; // Fade back to content
+      setTimeout(() => {
+        whiteScreen.remove();
+        revealContent();
+      }, 2000);
+    }, 500); // Keep the screen white for 0.5 seconds
+  }, 0);
+}
+
+// Reveal the hidden content
+function revealContent() {
+  const explosionContent = document.getElementById('explosionContent');
+  explosionContent.style.display = 'flex'; // Unhide the content
+}
+
+// Handle Laxmi Bomb click
+laxmibomb.addEventListener('click', (e) => {
+  if (explosionStarted) return;
+
+  explosionStarted = true;
+  laxmibomb.style.display = 'none'; // Hide the Laxmi Bomb icon
+
+  // Play explosion sound immediately
+  const explosionSound = new Audio('explosion.mp3'); // Replace with your explosion sound file
+  explosionSound.volume = 1.0; // High volume
+  explosionSound.play();
+
+  // Wait for a short delay (e.g., 500ms) before starting the animation and white screen
+  setTimeout(() => {
+    // Start explosion animation and white screen simultaneously
+    createExplosionCanvas();
+    createExplosionParticles(window.innerWidth / 2, window.innerHeight / 2); // Center explosion
+    animateExplosion();
+    triggerWhiteScreen();
+
+    // Play BGM immediately after the explosion sound starts
+    const fireworksAudio = document.getElementById('fireworksAudio');
+    fireworksAudio.volume = 0.3; // Set volume to a moderate level
+    fireworksAudio.play(); // Play the BGM directly here
+  }, 0); // Adjust the delay as needed
+});
+
+// Full-screen activation on first click
+document.addEventListener('click', () => {
+  if (!fullScreenActivated) {
+    fullScreenActivated = true;
+    const docEl = document.documentElement;
+    if (docEl.requestFullscreen) {
+      docEl.requestFullscreen();
+    } else if (docEl.mozRequestFullScreen) {
+      docEl.mozRequestFullScreen();
+    } else if (docEl.webkitRequestFullscreen) {
+      docEl.webkitRequestFullscreen();
+    } else if (docEl.msRequestFullscreen) {
+      docEl.msRequestFullscreen();
+    }
+  }
+});
+</script>
+
+<section id="sparklers">
+  <canvas id="sparklersCanvas"></canvas>
+  <img id="sparklerImage" src="sparkler.png" alt="Sparkler" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
+  <button class="btn" onclick="scrollToSection(3);">
+    <div class="scroll"></div>
+  </button>
+</section>
+
+<section id="spinner">
+  <canvas id="spinnerCanvas"></canvas>
+  <button class="btn" onclick="scrollToSection(4);">
+    <div class="scroll"></div>
+  </button>
+</section>
+
+<section id="fountain">
+  <canvas id="fountainCanvas"></canvas>
+  <button class="btn" onclick="scrollToSection(5);" style="right: 80px;">
+    <div class="scroll"></div>
+  </button>
+</section>
+
+<section id="fireworks">
+  <canvas id="fireworksCanvas"></canvas>
+  <h1 id="diwaliText">Happy Deepavali</h1>
+</section>
+
+<script>
+// ===== STEP SCROLLING =====
+const sections = document.querySelectorAll('section');
+let currentSection = 0;
+let isScrolling = false;
+
+function scrollToSection(index){
+  if(index < 0 || index >= sections.length) return;
+  isScrolling = true;
+  sections[index].scrollIntoView({behavior: 'smooth'});
+  setTimeout(()=> isScrolling = false, 800);
+  currentSection = index;
+}
+
+// Touch start for step scrolling
+let touchStartY = 0;
+window.addEventListener('touchstart', e => {
+  touchStartY = e.touches[0].clientY;
+});
+
+// ===== SPARKLER CANVAS =====
+const spCanvas = document.getElementById('sparklersCanvas');
+const spCtx = spCanvas.getContext('2d');
+const sparklerImage = document.getElementById('sparklerImage');
+let w = spCanvas.width = window.innerWidth;
+let h = spCanvas.height = window.innerHeight;
+
+window.addEventListener('resize', () => {
+  w = spCanvas.width = window.innerWidth;
+  h = spCanvas.height = window.innerHeight;
+});
+
+// Sparkler position and dragging state
+let sparklerPosition = { x: w / 2, y: h / 2 };
+let isDragging = false;
+let dragOffset = { x: 0, y: 0 };
+
+sparklerImage.style.left = `${sparklerPosition.x}px`;
+sparklerImage.style.top = `${sparklerPosition.y}px`;
+
+let spParticles = [];
+const SPARKLER_TUNING = {
+  maxParticles: 200,
+  particleSize: [1, 3],
+  trailFade: 0.15,
+  gravity: 0.1,
+  sparkLife: [30, 60],
+  sparkSpeed: [2, 5],
+};
+
+function spawnSparkParticles(x, y) {
+  const count = Math.floor(Math.random() * 10 + 5);
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * (SPARKLER_TUNING.sparkSpeed[1] - SPARKLER_TUNING.sparkSpeed[0]) + SPARKLER_TUNING.sparkSpeed[0];
+    const size = Math.random() * (SPARKLER_TUNING.particleSize[1] - SPARKLER_TUNING.particleSize[0]) + SPARKLER_TUNING.particleSize[0];
+    const life = Math.random() * (SPARKLER_TUNING.sparkLife[1] - SPARKLER_TUNING.sparkLife[0]) + SPARKLER_TUNING.sparkLife[0];
+    spParticles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      size, life, maxLife: life,
+      color: `hsl(${Math.random() * 60 + 40}, 100%, 70%)`,
+    });
+  }
+}
+
+function animateSparkler() {
+  spCtx.globalCompositeOperation = 'source-over';
+  spCtx.fillStyle = `rgba(0,0,0,${SPARKLER_TUNING.trailFade})`;
+  spCtx.fillRect(0, 0, w, h);
+
+  spCtx.globalCompositeOperation = 'lighter';
+  for (let i = spParticles.length - 1; i >= 0; i--) {
+    const p = spParticles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += SPARKLER_TUNING.gravity;
+    p.life--;
+
+    const fade = p.life / p.maxLife;
+    spCtx.beginPath();
+    const grd = spCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size*3);
+    grd.addColorStop(0, `hsla(50,100%,80%,${fade})`);
+    grd.addColorStop(0.5, `hsla(40,100%,60%,${fade*0.6})`);
+    grd.addColorStop(1, `hsla(30,100%,40%,0)`);
+    spCtx.fillStyle = grd;
+    spCtx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    spCtx.fill();
+
+    if(p.life <= 0) spParticles.splice(i,1);
+  }
+
+  spawnSparkParticles(sparklerPosition.x, sparklerPosition.y - sparklerImage.height/2);
+  requestAnimationFrame(animateSparkler);
+}
+
+// ===== SPARKLER DRAG =====
+function startDrag(e) {
+  isDragging = true;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  dragOffset.x = clientX - sparklerPosition.x;
+  dragOffset.y = clientY - sparklerPosition.y;
+}
+
+function dragMove(e) {
+  if(!isDragging) return;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  sparklerPosition.x = clientX - dragOffset.x;
+  sparklerPosition.y = clientY - dragOffset.y;
+  sparklerImage.style.left = `${sparklerPosition.x}px`;
+  sparklerImage.style.top = `${sparklerPosition.y}px`;
+}
+
+function endDrag() { isDragging = false; }
+
+sparklerImage.addEventListener('mousedown', startDrag);
+sparklerImage.addEventListener('touchstart', startDrag);
+window.addEventListener('mousemove', dragMove);
+window.addEventListener('touchmove', dragMove, { passive: false });
+window.addEventListener('mouseup', endDrag);
+window.addEventListener('touchend', endDrag);
+
+// ===== DISABLE STEP SCROLLING WHILE DRAGGING =====
+window.addEventListener('wheel', e => {
+  if(isScrolling || isDragging) return;
+  if(e.deltaY > 0) scrollToSection(currentSection + 1);
+  else scrollToSection(currentSection - 1);
+});
+
+window.addEventListener('touchend', e => {
+  if(isScrolling || isDragging) return;
+  const touchEndY = e.changedTouches[0].clientY;
+  if(touchStartY - touchEndY > 50) scrollToSection(currentSection + 1);
+  else if(touchEndY - touchStartY > 50) scrollToSection(currentSection - 1);
+});
+
+// Prevent default scroll while dragging sparkler
+window.addEventListener('wheel', e => { if(isDragging) e.preventDefault(); }, { passive: false });
+window.addEventListener('touchmove', e => { if(isDragging) e.preventDefault(); }, { passive: false });
+
+animateSparkler();
+
+// ===== SPINNER CANVAS =====
+const spinnerCanvas=document.getElementById('spinnerCanvas');
+const spinnerCtx=spinnerCanvas.getContext('2d');
+let spinnerW=spinnerCanvas.width=window.innerWidth, spinnerH=spinnerCanvas.height=window.innerHeight;
+let spinnerParticles=[];
+let spinnerImg=new Image();
+spinnerImg.src='spinner.png'; // replace with your spinner image
+let baseCenter={x:spinnerW/2,y:spinnerH/2}, center={...baseCenter}, angle=0, speed=0, targetSpeed=0.5, ringRadius=110;
+let driftAngle=0, driftRadius=100;
+
+function createSpinnerParticle(x,y,ang,speedFactor){
+  const baseSpeed=2+speedFactor*8;
+  const vx=Math.cos(ang)*baseSpeed;
+  const vy=Math.sin(ang)*baseSpeed;
+  const life=40+Math.random()*40;
+  spinnerParticles.push({x,y,vx,vy,life,maxLife:life,color:`hsl(${25+Math.random()*30},100%,${55+Math.random()*25}%)`});
+}
+function updateSpinnerParticles(){
+  for(const p of spinnerParticles){ p.x+=p.vx; p.y+=p.vy; p.life--; }
+  spinnerParticles=spinnerParticles.filter(p=>p.life>0);
+}
+function drawSpinner(){
+  spinnerCtx.save();
+  spinnerCtx.translate(center.x,center.y);
+  spinnerCtx.rotate(angle);
+  const size=220;
+  spinnerCtx.drawImage(spinnerImg,-size/2,-size/2,size,size);
+  spinnerCtx.restore();
+}
+function drawSpinnerParticles(){
+  for(const p of spinnerParticles){
+    const alpha=p.life/p.maxLife;
+    spinnerCtx.beginPath();
+    spinnerCtx.fillStyle=p.color.replace(')',`,`+alpha+')').replace('hsl','hsla');
+    spinnerCtx.arc(p.x,p.y,2,0,Math.PI*2);
+    spinnerCtx.fill();
+  }
+}
+let spinnerStarted=false;
+function animateSpinner(){
+  spinnerCtx.fillStyle='rgba(0,0,0,0.22)';
+  spinnerCtx.fillRect(0,0,spinnerW,spinnerH);
+  speed+=(targetSpeed-speed)*0.03;
+  driftAngle+=0.01;
+  center.x=baseCenter.x+Math.cos(driftAngle*0.8)*driftRadius;
+  center.y=baseCenter.y+Math.sin(driftAngle*1.3)*driftRadius;
+  angle+=speed;
+  if(speed>0.03){
+    const sparkCount=Math.floor(speed*250);
+    for(let i=0;i<sparkCount;i++){
+      const emissionAngle=angle+Math.random()*Math.PI*2;
+      const x=center.x+ringRadius*Math.cos(emissionAngle);
+      const y=center.y+ringRadius*Math.sin(emissionAngle);
+      const tangent=emissionAngle+Math.PI/2;
+      createSpinnerParticle(x,y,tangent,speed);
+    }
+  }
+  drawSpinner();
+  updateSpinnerParticles();
+  drawSpinnerParticles();
+  requestAnimationFrame(animateSpinner);
+}
+new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting && !spinnerStarted){ spinnerStarted=true; animateSpinner(); }
+  });
+},{threshold:0.5}).observe(document.getElementById('spinner'));
+
+// ===== FOUNTAIN =====
+const fCanvas=document.getElementById('fountainCanvas');
+const fCtx=fCanvas.getContext('2d');
+fCanvas.width=window.innerWidth; fCanvas.height=window.innerHeight;
+let fParticles=[];
+let fountainStarted=false;
+function fCreateParticle(x,y){
+  const angle=Math.random()*Math.PI/8-Math.PI/16 + Math.PI/2; // reduce the angle spread
+  const speed=Math.random()*8+4;
+  const life=Math.random()*80+80;
+  fParticles.push({x,y,vx:Math.cos(angle)*speed,vy:-Math.sin(angle)*speed,life,maxLife:life,color:`hsl(${Math.random()*60+40},100%,60%)`});
+}
+function fAnimate(){
+  if(!fountainStarted){ requestAnimationFrame(fAnimate); return; }
+  fCtx.fillStyle='rgba(0,0,0,0.2)';
+  fCtx.fillRect(0,0,fCanvas.width,fCanvas.height);
+  const x=fCanvas.width/2, y=fCanvas.height - 70;
+  for(let i=0;i<5;i++) fCreateParticle(x,y);
+  for(const p of fParticles){
+    p.vy+=0.15; p.x+=p.vx; p.y+=p.vy; p.life--;
+  }
+  fParticles=fParticles.filter(p=>p.life>0);
+  for(const p of fParticles){
+    const alpha=p.life/p.maxLife;
+    const grd=fCtx.createRadialGradient(p.x,p.y,0,p.x,p.y,Math.max(4, p.life*0.5));
+    grd.addColorStop(0, `hsla(50,90%,70%,${alpha})`);
+    grd.addColorStop(0.3, `hsla(60,90%,60%,${alpha*0.6})`);
+    grd.addColorStop(1, `hsla(60,80%,40%,0)`);
+    fCtx.fillStyle=grd;
+    fCtx.beginPath();
+    fCtx.arc(p.x,p.y,2,0,Math.PI*2);
+    fCtx.fill();
+  }
+  // draw triangle base
+    fCtx.fillStyle='rgba(255,215,0,1)';
+    fCtx.beginPath();
+    fCtx.moveTo(x-40,fCanvas.height);
+    fCtx.lineTo(x+40,fCanvas.height);
+    fCtx.lineTo(x,fCanvas.height-80);
+    fCtx.closePath();
+    fCtx.fill();
+
+  requestAnimationFrame(fAnimate);
+}
+new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting && !fountainStarted){ fountainStarted=true; fAnimate(); }
+  });
+},{threshold:0.5}).observe(document.getElementById('fountain'));
+
+// ===== FIREWORKS =====
+const fwCanvas = document.getElementById('fireworksCanvas');
+const fwCtx = fwCanvas.getContext('2d');
+fwCanvas.width = window.innerWidth;
+fwCanvas.height = window.innerHeight;
+
+let fireworks = [];
+let explosionCount = 0; // Track the number of explosions
+let fireworkStarted = false;
+
+function createFirework() {
+  const x = Math.random() * fwCanvas.width; // Random horizontal position
+  const y = fwCanvas.height; // Start at the bottom of the canvas
+  const targetY = Math.random() * (fwCanvas.height / 2); // Random height for explosion
+
+  // Generate two complementary colors for the firework
+  const baseHue = Math.random() * 360; // Random hue
+  const color1 = `hsl(${baseHue}, 100%, 50%)`; // Primary color
+  const color2 = `hsl(${baseHue + 20}, 100%, 40%)`; // Slightly darker complementary color
+
+  fireworks.push({
+    x,
+    y,
+    targetY,
+    exploded: false,
+    particles: [],
+    colors: [color1, color2], // Store the two colors
+    vy: -8, // Upward velocity
+  });
+}
+
+function animateFireworks() {
+  fwCtx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+  fwCtx.fillRect(0, 0, fwCanvas.width, fwCanvas.height);
+
+  const aliveFireworks = [];
+
+  for (const firework of fireworks) {
+    if (!firework.exploded) {
+      // Firework rises
+      firework.y += firework.vy;
+
+      // Draw the rising firework
+      fwCtx.fillStyle = firework.colors[0]; // Use the first color for the rising firework
+      fwCtx.beginPath();
+      fwCtx.arc(firework.x, firework.y, 3, 0, Math.PI * 2);
+      fwCtx.fill();
+
+      // Check if it has reached the target height
+      if (firework.y <= firework.targetY) {
+        firework.exploded = true;
+        explosionCount++;
+
+        // Create explosion particles
+        for (let i = 0; i < 100; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 5 + 2;
+          const life = Math.random() * 60 + 60;
+
+          firework.particles.push({
+            x: firework.x,
+            y: firework.y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life,
+            maxLife: life,
+            color: firework.colors[i % 2], // Alternate between the two colors
+          });
+        }
+
+        // Show "Happy Diwali" text on the third explosion
+        if (explosionCount === 3) {
+          const diwaliText = document.getElementById('diwaliText');
+          diwaliText.style.opacity = 1;
+        }
+      }
+
+      aliveFireworks.push(firework);
+    } else {
+      // Handle explosion particles
+      const aliveParticles = [];
+
+      for (const particle of firework.particles) {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+        particle.vy += 0.05; // Gravity effect
+        particle.life--;
+
+        if (particle.life > 0) {
+          aliveParticles.push(particle);
+
+          // Draw the particle
+          const alpha = particle.life / particle.maxLife;
+          fwCtx.fillStyle = particle.color.replace(')', `, ${alpha})`).replace('hsl', 'hsla');
+          fwCtx.beginPath();
+          fwCtx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+          fwCtx.fill();
+        }
+      }
+
+      firework.particles = aliveParticles;
+
+      // Keep the firework alive if it still has particles
+      if (firework.particles.length > 0) {
+        aliveFireworks.push(firework);
+      }
+    }
+  }
+
+  fireworks = aliveFireworks;
+
+  requestAnimationFrame(animateFireworks);
+}
+
+// Start fireworks animation when the section is visible
+new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting && !fireworkStarted) {
+        fireworkStarted = true;
+        setInterval(createFirework, 750); // Create fireworks every 0.75 seconds
+        animateFireworks();
+      }
+    });
+  },
+  { threshold: 0.5 }
+).observe(document.getElementById('fireworks'));
+
+</script>
+<script>
+const diya = document.getElementById('diya');
+const flame = document.getElementById('flame');
+const clickspan = flame.nextElementSibling;
+const button = document.querySelector('.btn');
+
+diya.addEventListener('click', () => {
+  // Trigger the flame rising effect first
+  flame.style.transition = 'all 1s ease-out';
+  flame.style.transform = 'translateX(-50%) scale(1)';
+  flame.style.opacity = '1';
+  
+  clickspan.style.opacity = '0';
+
+  // After rising, start flickering
+  setTimeout(() => {
+    flame.classList.add('lit');
+    button.style.display = 'flex';
+  }, 1000); // matches transition duration
+});
+
+</script>
+</body>
+</html>
